@@ -1,4 +1,4 @@
-import { createStore, del, get, keys, set } from 'idb-keyval';
+import { createStore, del, get, keys, set } from "idb-keyval";
 
 /**
  * Case persistence. The prototype stores cases in IndexedDB; the
@@ -13,7 +13,7 @@ export interface SavedCaseSummary {
   seed: string;
   scenarioId: string;
   simTime: number;
-  phase: 'active' | 'ended';
+  phase: "active" | "ended";
   alive: boolean;
 }
 
@@ -22,7 +22,7 @@ export interface SavedCase extends SavedCaseSummary {
   engineJson: string;
   /** Debrief text if generated */
   debrief?: unknown;
-  chat?: { role: 'user' | 'patient' | 'system'; text: string; t: number }[];
+  chat?: { role: "user" | "patient" | "system"; text: string; t: number }[];
 }
 
 export interface CaseRepository {
@@ -32,7 +32,10 @@ export interface CaseRepository {
   remove(id: string): Promise<void>;
 }
 
-const store = typeof indexedDB !== 'undefined' ? createStore('vitalis-cases', 'cases') : undefined;
+const store =
+  typeof indexedDB !== "undefined"
+    ? createStore("vitalis-cases", "cases")
+    : undefined;
 
 export const localCaseRepository: CaseRepository = {
   async list() {
@@ -58,7 +61,7 @@ export const localCaseRepository: CaseRepository = {
   },
 };
 
-const LAST_KEY = 'vitalis.lastCaseId';
+const LAST_KEY = "vitalis.lastCaseId";
 export function rememberLastCase(id: string | null): void {
   try {
     if (id) localStorage.setItem(LAST_KEY, id);

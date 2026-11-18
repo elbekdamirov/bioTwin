@@ -1,8 +1,12 @@
-import type { SimAction } from '@/sim/interventions/actions';
-import type { ScenarioDefinition } from '@/sim/scenarios/schema';
-import type { CaseMeta, HistoryPayload, SimSnapshot } from '@/sim/engine/snapshot';
-import type { SimulationEvent } from '@/sim/types';
-import type { FromWorker, ToWorker } from '@/worker/protocol';
+import type { SimAction } from "@/sim/interventions/actions";
+import type { ScenarioDefinition } from "@/sim/scenarios/schema";
+import type {
+  CaseMeta,
+  HistoryPayload,
+  SimSnapshot,
+} from "@/sim/engine/snapshot";
+import type { SimulationEvent } from "@/sim/types";
+import type { FromWorker, ToWorker } from "@/worker/protocol";
 
 type Listener = (s: SimSnapshot) => void;
 
@@ -20,15 +24,24 @@ export class SimClient {
   meta: CaseMeta | null = null;
   speed = 1;
   private listeners = new Set<Listener>();
-  private createdListeners = new Set<(meta: CaseMeta, snapshot: SimSnapshot, restored: boolean) => void>();
+  private createdListeners = new Set<
+    (meta: CaseMeta, snapshot: SimSnapshot, restored: boolean) => void
+  >();
   private errorListeners = new Set<(msg: string) => void>();
   private pending = new Map<number, (v: unknown) => void>();
   private reqId = 1;
 
   constructor() {
-    this.worker = new Worker(new URL('../worker/sim.worker.ts', import.meta.url), { type: 'module' });
-    this.worker.onmessage = (ev: MessageEvent<FromWorker>) => this.handle(ev.data);
-    this.worker.onerror = (e) => this.errorListeners.forEach((l) => l(e.message || 'Simulation worker error'));
+    this.worker = new Worker(
+      new URL("../worker/sim.worker.ts", import.meta.url),
+      { type: "module" },
+    );
+    this.worker.onmessage = (ev: MessageEvent<FromWorker>) =>
+      this.handle(ev.data);
+    this.worker.onerror = (e) =>
+      this.errorListeners.forEach((l) =>
+        l(e.message || "Simulation worker error"),
+      );
   }
 
   private send(msg: ToWorker): void {
@@ -37,34 +50,37 @@ export class SimClient {
 
   private handle(msg: FromWorker): void {
     switch (msg.type) {
-      case 'created':
+      case "created":
         this.meta = msg.meta;
         this.latest = msg.snapshot;
         this.latestAt = performance.now();
-        this.createdListeners.forEach((l) => l(msg.meta, msg.snapshot, msg.restored));
+        this.createdListeners.forEach((l) =>
+          l(msg.meta, msg.snapshot, msg.restored),
+        );
         break;
-      case 'snapshot':
+      case "snapshot":
         this.latest = msg.snapshot;
         this.latestAt = performance.now();
         this.listeners.forEach((l) => l(msg.snapshot));
         break;
-      case 'actionResult':
-        if (!msg.ok) this.errorListeners.forEach((l) => l(msg.error ?? 'Action rejected'));
+      case "actionResult":
+        if (!msg.ok)
+          this.errorListeners.forEach((l) => l(msg.error ?? "Action rejected"));
         if (msg.requestId) this.resolve(msg.requestId, msg);
         break;
-      case 'advanced':
+      case "advanced":
         this.resolve(msg.requestId, msg);
         break;
-      case 'serialized':
+      case "serialized":
         this.resolve(msg.requestId, msg.json);
         break;
-      case 'history':
+      case "history":
         this.resolve(msg.requestId, msg.history);
         break;
-      case 'events':
+      case "events":
         this.resolve(msg.requestId, msg.events);
         break;
-      case 'error':
+      case "error":
         this.errorListeners.forEach((l) => l(msg.message));
         break;
     }
@@ -86,47 +102,64 @@ export class SimClient {
       setTimeout(() => {
         if (this.pending.has(id)) {
           this.pending.delete(id);
-          rej(new Error('Worker request timed out'));
+          rej(new Error("Worker request timed out"));
         }
       }, 15000);
     });
   }
 
   create(seed: string, scenario: ScenarioDefinition): void {
-    this.send({ type: 'create', seed, scenario });
+    this.send({ type: "create", seed, scenario });
   }
 
   restore(json: string): void {
-    this.send({ type: 'restore', json });
+    this.send({ type: "restore", json });
   }
 
   dispatch(action: SimAction): void {
-    this.send({ type: 'action', action });
+    this.send({ type: "action", action });
   }
 
   setSpeed(speed: number): void {
     this.speed = speed;
-    this.send({ type: 'speed', speed });
+    this.send({ type: "speed", speed });
   }
 
   skip(seconds: number): void {
-    this.send({ type: 'skip', seconds });
+    this.send({ type: "skip", seconds });
   }
 
-  advance(ticks: number, actions: SimAction[] = []): Promise<{ snapshot: SimSnapshot; errors: string[] }> {
-    return this.request((requestId) => ({ type: 'advance', requestId, ticks, actions }));
+  advance(
+    ticks: number,
+    actions: SimAction[] = [],
+  ): Promise<{ snapshot: SimSnapshot; errors: string[] }> {
+    return this.request((requestId) => ({
+      type: "advance",
+      requestId,
+      ticks,
+      actions,
+    }));
   }
 
   serialize(): Promise<string> {
-    return this.request<string>((requestId) => ({ type: 'serialize', requestId }));
+    return this.request<string>((requestId) => ({
+      type: "serialize",
+      requestId,
+    }));
   }
 
   history(): Promise<HistoryPayload> {
-    return this.request<HistoryPayload>((requestId) => ({ type: 'history', requestId }));
+    return this.request<HistoryPayload>((requestId) => ({
+      type: "history",
+      requestId,
+    }));
   }
 
   allEvents(): Promise<SimulationEvent[]> {
-    return this.request<SimulationEvent[]>((requestId) => ({ type: 'events', requestId }));
+    return this.request<SimulationEvent[]>((requestId) => ({
+      type: "events",
+      requestId,
+    }));
   }
 
   onSnapshot(l: Listener): () => void {
@@ -134,7 +167,9 @@ export class SimClient {
     return () => this.listeners.delete(l);
   }
 
-  onCreated(l: (meta: CaseMeta, snapshot: SimSnapshot, restored: boolean) => void): () => void {
+  onCreated(
+    l: (meta: CaseMeta, snapshot: SimSnapshot, restored: boolean) => void,
+  ): () => void {
     this.createdListeners.add(l);
     return () => this.createdListeners.delete(l);
   }
@@ -145,7 +180,7 @@ export class SimClient {
   }
 
   dispose(): void {
-    this.send({ type: 'dispose' });
+    this.send({ type: "dispose" });
     this.worker.terminate();
   }
 }

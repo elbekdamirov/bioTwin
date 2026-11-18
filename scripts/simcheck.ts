@@ -1,6 +1,6 @@
-import { SimulationEngine } from '../src/sim/engine/SimulationEngine';
-import { SCENARIOS, getScenario } from '../src/sim/scenarios/library';
-import type { SimAction } from '../src/sim/interventions/actions';
+import { SimulationEngine } from "../src/sim/engine/SimulationEngine";
+import { SCENARIOS, getScenario } from "../src/sim/scenarios/library";
+import type { SimAction } from "../src/sim/interventions/actions";
 
 function line(e: SimulationEngine): string {
   const p = e.s.phys;
@@ -17,16 +17,18 @@ function line(e: SimulationEngine): string {
     `Glu ${p.chem.glucose.toFixed(1)} K ${p.chem.k.toFixed(1)} Na ${p.chem.na.toFixed(0)}`,
     `Hb ${p.blood.hb.toFixed(1)} BV ${p.blood.volume.toFixed(0)}`,
     `T ${p.thermo.core.toFixed(1)} GCS ${p.neuro.gcs} pain ${p.neuro.pain.toFixed(0)} pupil ${p.neuro.pupilLeft.toFixed(1)}`,
-  ].join(' | ');
+  ].join(" | ");
 }
 
 const only = process.argv[2];
 for (const sc of SCENARIOS) {
   if (only && sc.id !== only) continue;
   const t0 = performance.now();
-  const e = SimulationEngine.create({ seed: 'CHECK-0001', scenario: sc });
+  const e = SimulationEngine.create({ seed: "CHECK-0001", scenario: sc });
   const ms = performance.now() - t0;
-  console.log(`\n=== ${sc.id} (${e.s.patient.sex} ${e.s.patient.ageYears}y ${e.s.patient.weightKg}kg) init ${ms.toFixed(0)}ms`);
+  console.log(
+    `\n=== ${sc.id} (${e.s.patient.sex} ${e.s.patient.ageYears}y ${e.s.patient.weightKg}kg) init ${ms.toFixed(0)}ms`,
+  );
   console.log(line(e));
   for (const m of [2, 5, 10, 20]) {
     const target = m * 60;

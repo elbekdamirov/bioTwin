@@ -1,29 +1,39 @@
-import { create } from 'zustand';
-import type { CaseMeta, SimSnapshot } from '@/sim/engine/snapshot';
-import type { SimulationEvent } from '@/sim/types';
-import type { SimAction } from '@/sim/interventions/actions';
-import type { ScenarioDefinition } from '@/sim/scenarios/schema';
-import type { AnatomyLayerId, AnatomyLayerSettings, AnatomyStructureInfo, CameraPreset } from '@/three/types';
-import { createDefaultLayerSettings } from '@/three/types';
-import { simClient } from './simClient';
-import { lastCaseId, localCaseRepository, rememberLastCase, type SavedCase } from './persistence';
+import { create } from "zustand";
+import type { CaseMeta, SimSnapshot } from "@/sim/engine/snapshot";
+import type { SimulationEvent } from "@/sim/types";
+import type { SimAction } from "@/sim/interventions/actions";
+import type { ScenarioDefinition } from "@/sim/scenarios/schema";
+import type {
+  AnatomyLayerId,
+  AnatomyLayerSettings,
+  AnatomyStructureInfo,
+  CameraPreset,
+} from "@/three/types";
+import { createDefaultLayerSettings } from "@/three/types";
+import { simClient } from "./simClient";
+import {
+  lastCaseId,
+  localCaseRepository,
+  rememberLastCase,
+  type SavedCase,
+} from "./persistence";
 
-export type Screen = 'start' | 'loading' | 'handoff' | 'case' | 'debrief';
+export type Screen = "start" | "loading" | "handoff" | "case" | "debrief";
 
 export interface ChatMessage {
   id: number;
-  role: 'user' | 'patient' | 'system' | 'instructor';
+  role: "user" | "patient" | "system" | "instructor";
   text: string;
   t: number;
   /** Non-verbal cue (e.g. "groans", "no response") */
   cue?: string;
-  source?: 'ai' | 'fallback';
+  source?: "ai" | "fallback";
 }
 
 export interface Toast {
   id: number;
   text: string;
-  tone: 'info' | 'warning' | 'error' | 'good';
+  tone: "info" | "warning" | "error" | "good";
 }
 
 interface CaseState {
@@ -43,9 +53,9 @@ interface CaseState {
   resumeCase: (id: string) => Promise<boolean>;
   dispatch: (a: SimAction) => void;
   setSpeed: (n: number) => void;
-  addChat: (m: Omit<ChatMessage, 'id'>) => void;
-  addInstructorChat: (m: Omit<ChatMessage, 'id'>) => void;
-  toast: (text: string, tone?: Toast['tone']) => void;
+  addChat: (m: Omit<ChatMessage, "id">) => void;
+  addInstructorChat: (m: Omit<ChatMessage, "id">) => void;
+  toast: (text: string, tone?: Toast["tone"]) => void;
   dismissToast: (id: number) => void;
   save: () => Promise<void>;
   endCase: (reason: string, diagnosis: string) => void;
@@ -61,7 +71,7 @@ function newCaseId(): string {
 }
 
 export const useCase = create<CaseState>((set, getState) => ({
-  screen: 'start',
+  screen: "start",
   caseId: null,
   meta: null,
   snapshot: null,
@@ -75,7 +85,17 @@ export const useCase = create<CaseState>((set, getState) => ({
   setScreen: (screen) => set({ screen }),
   startCase: (seed, scenario) => {
     const id = newCaseId();
-    set({ screen: 'loading', caseId: id, meta: null, snapshot: null, events: [], chat: [], instructorChat: [], debrief: null, diagnosisSubmitted: null });
+    set({
+      screen: "loading",
+      caseId: id,
+      meta: null,
+      snapshot: null,
+      events: [],
+      chat: [],
+      instructorChat: [],
+      debrief: null,
+      diagnosisSubmitted: null,
+    });
     rememberLastCase(id);
     const client = simClient();
     client.setSpeed(0);
@@ -84,7 +104,20 @@ export const useCase = create<CaseState>((set, getState) => ({
   resumeCase: async (id) => {
     const saved = await localCaseRepository.load(id);
     if (!saved) return false;
-    set({ screen: 'loading', caseId: id, meta: null, snapshot: null, events: [], chat: (saved.chat as ChatMessage[] | undefined)?.map((c) => ({ ...c, id: msgId++ })) ?? [], debrief: saved.debrief ?? null, diagnosisSubmitted: null });
+    set({
+      screen: "loading",
+      caseId: id,
+      meta: null,
+      snapshot: null,
+      events: [],
+      chat:
+        (saved.chat as ChatMessage[] | undefined)?.map((c) => ({
+          ...c,
+          id: msgId++,
+        })) ?? [],
+      debrief: saved.debrief ?? null,
+      diagnosisSubmitted: null,
+    });
     rememberLastCase(id);
     const client = simClient();
     client.setSpeed(0);
@@ -97,13 +130,17 @@ export const useCase = create<CaseState>((set, getState) => ({
     set({ speed: n });
   },
   addChat: (m) => set((s) => ({ chat: [...s.chat, { ...m, id: msgId++ }] })),
-  addInstructorChat: (m) => set((s) => ({ instructorChat: [...s.instructorChat, { ...m, id: msgId++ }] })),
-  toast: (text, tone = 'info') => {
+  addInstructorChat: (m) =>
+    set((s) => ({
+      instructorChat: [...s.instructorChat, { ...m, id: msgId++ }],
+    })),
+  toast: (text, tone = "info") => {
     const id = toastId++;
     set((s) => ({ toasts: [...s.toasts.slice(-3), { id, text, tone }] }));
     setTimeout(() => getState().dismissToast(id), 4500);
   },
-  dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+  dismissToast: (id) =>
+    set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   save: async () => {
     const { caseId, meta, snapshot, chat, debrief } = getState();
     if (!caseId || !meta || !snapshot) return;
@@ -121,19 +158,31 @@ export const useCase = create<CaseState>((set, getState) => ({
       alive: snapshot.status.alive,
       engineJson: json,
       debrief: debrief ?? undefined,
-      chat: chat.map(({ role, text, t }) => ({ role: role === 'instructor' ? 'system' : role, text, t })),
+      chat: chat.map(({ role, text, t }) => ({
+        role: role === "instructor" ? "system" : role,
+        text,
+        t,
+      })),
     };
     await localCaseRepository.save(rec);
   },
   endCase: (reason, diagnosis) => {
-    simClient().dispatch({ type: 'case.end', reason, diagnosis });
+    simClient().dispatch({ type: "case.end", reason, diagnosis });
     set({ diagnosisSubmitted: diagnosis });
   },
   setDebrief: (d) => set({ debrief: d }),
   exitToStart: () => {
     simClient().setSpeed(0);
     rememberLastCase(null);
-    set({ screen: 'start', caseId: null, meta: null, snapshot: null, events: [], chat: [], debrief: null });
+    set({
+      screen: "start",
+      caseId: null,
+      meta: null,
+      snapshot: null,
+      events: [],
+      chat: [],
+      debrief: null,
+    });
   },
 }));
 
@@ -149,7 +198,11 @@ export function wireSimulation(): void {
       meta,
       snapshot,
       events: [...snapshot.events],
-      screen: restored ? (snapshot.status.phase === 'ended' ? 'debrief' : 'case') : 'handoff',
+      screen: restored
+        ? snapshot.status.phase === "ended"
+          ? "debrief"
+          : "case"
+        : "handoff",
       speed: 0,
       chat: s.chat,
     }));
@@ -169,15 +222,16 @@ export function wireSimulation(): void {
       useCase.setState({ snapshot: snap });
     }
   });
-  client.onError((m) => useCase.getState().toast(m, 'error'));
-  window.addEventListener('pagehide', () => {
+  client.onError((m) => useCase.getState().toast(m, "error"));
+  window.addEventListener("pagehide", () => {
     const st = useCase.getState();
-    if ((st.screen === 'case' || st.screen === 'debrief') && st.caseId) void st.save();
+    if ((st.screen === "case" || st.screen === "debrief") && st.caseId)
+      void st.save();
   });
   // Autosave every 20 s of wall time while a case is open
   setInterval(() => {
     const st = useCase.getState();
-    if (st.screen === 'case' && st.caseId) st.save().catch(() => undefined);
+    if (st.screen === "case" && st.caseId) st.save().catch(() => undefined);
   }, 20000);
 }
 
@@ -189,8 +243,20 @@ export async function tryResumeLast(): Promise<boolean> {
 
 // ---------------------------------------------------------------- UI store
 
-export type PanelId = 'assess' | 'airway' | 'circulation' | 'meds' | 'procedures' | 'diagnostics' | 'anatomy' | 'talk' | 'timeline' | 'instructor' | 'pharm' | null;
-export type Tool = 'pointer' | 'stethoscope' | 'palpate' | 'inspect';
+export type PanelId =
+  | "assess"
+  | "airway"
+  | "circulation"
+  | "meds"
+  | "procedures"
+  | "diagnostics"
+  | "anatomy"
+  | "talk"
+  | "timeline"
+  | "instructor"
+  | "pharm"
+  | null;
+export type Tool = "pointer" | "stethoscope" | "palpate" | "inspect";
 
 export interface AlarmLimits {
   hrLow: number;
@@ -212,7 +278,7 @@ interface UiState {
   isolate: AnatomyLayerId | null;
   tool: Tool;
   selected: AnatomyStructureInfo | null;
-  theme: 'dark' | 'light';
+  theme: "dark" | "light";
   audioEnabled: boolean;
   alarmsSilencedUntil: number;
   qrsTone: boolean;
@@ -222,33 +288,50 @@ interface UiState {
   setPanel: (p: PanelId) => void;
   togglePanel: (p: Exclude<PanelId, null>) => void;
   setPreset: (p: CameraPreset) => void;
-  setLayer: (id: AnatomyLayerId, patch: Partial<{ visible: boolean; opacity: number }>) => void;
+  setLayer: (
+    id: AnatomyLayerId,
+    patch: Partial<{ visible: boolean; opacity: number }>,
+  ) => void;
   setIsolate: (id: AnatomyLayerId | null) => void;
   setTool: (t: Tool) => void;
   select: (s: AnatomyStructureInfo | null) => void;
-  setTheme: (t: 'dark' | 'light') => void;
+  setTheme: (t: "dark" | "light") => void;
   set: (patch: Partial<UiState>) => void;
 }
 
 export const useUi = create<UiState>((set) => ({
   panel: null,
-  preset: 'full',
+  preset: "full",
   presetNonce: 0,
   layers: createDefaultLayerSettings(),
   isolate: null,
-  tool: 'pointer',
+  tool: "pointer",
   selected: null,
-  theme: 'dark',
+  theme: "dark",
   audioEnabled: false,
   alarmsSilencedUntil: 0,
   qrsTone: true,
   instructorMode: false,
   showTruth: false,
-  limits: { hrLow: 45, hrHigh: 130, spo2Low: 90, sbpLow: 90, sbpHigh: 180, rrLow: 8, rrHigh: 30, etco2Low: 25, etco2High: 50 },
+  limits: {
+    hrLow: 45,
+    hrHigh: 130,
+    spo2Low: 90,
+    sbpLow: 90,
+    sbpHigh: 180,
+    rrLow: 8,
+    rrHigh: 30,
+    etco2Low: 25,
+    etco2High: 50,
+  },
   setPanel: (panel) => set({ panel }),
   togglePanel: (p) => set((s) => ({ panel: s.panel === p ? null : p })),
-  setPreset: (preset) => set((s) => ({ preset, presetNonce: s.presetNonce + 1 })),
-  setLayer: (id, patch) => set((s) => ({ layers: { ...s.layers, [id]: { ...s.layers[id], ...patch } } })),
+  setPreset: (preset) =>
+    set((s) => ({ preset, presetNonce: s.presetNonce + 1 })),
+  setLayer: (id, patch) =>
+    set((s) => ({
+      layers: { ...s.layers, [id]: { ...s.layers[id], ...patch } },
+    })),
   setIsolate: (isolate) => set({ isolate }),
   setTool: (tool) => set({ tool }),
   select: (selected) => set({ selected }),

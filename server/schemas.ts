@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 /**
  * Structured-output schemas for every AI endpoint. All fields are required
@@ -8,16 +8,41 @@ import { z } from 'zod';
  */
 
 export const PatientReplySchema = z.object({
-  speech: z.string().describe('Exactly what the patient says aloud. Empty string if the patient cannot speak.'),
-  nonverbal: z.string().describe('Brief observable behaviour, e.g. "grimaces, clutching chest". Empty if none.'),
-  emotion: z.enum(['calm', 'anxious', 'frightened', 'irritable', 'confused', 'distressed', 'drowsy', 'unresponsive']),
+  speech: z
+    .string()
+    .describe(
+      "Exactly what the patient says aloud. Empty string if the patient cannot speak.",
+    ),
+  nonverbal: z
+    .string()
+    .describe(
+      'Brief observable behaviour, e.g. "grimaces, clutching chest". Empty if none.',
+    ),
+  emotion: z.enum([
+    "calm",
+    "anxious",
+    "frightened",
+    "irritable",
+    "confused",
+    "distressed",
+    "drowsy",
+    "unresponsive",
+  ]),
 });
 export type PatientReply = z.infer<typeof PatientReplySchema>;
 
 export const InstructorReplySchema = z.object({
-  answer: z.string().describe('Teaching response. Never state the hidden diagnosis unless the case has ended.'),
-  hint_level: z.enum(['none', 'gentle', 'moderate']),
-  references_to_observations: z.array(z.string()).describe('Observations from the provided timeline that the learner should reconsider.'),
+  answer: z
+    .string()
+    .describe(
+      "Teaching response. Never state the hidden diagnosis unless the case has ended.",
+    ),
+  hint_level: z.enum(["none", "gentle", "moderate"]),
+  references_to_observations: z
+    .array(z.string())
+    .describe(
+      "Observations from the provided timeline that the learner should reconsider.",
+    ),
 });
 export type InstructorReply = z.infer<typeof InstructorReplySchema>;
 
@@ -30,7 +55,16 @@ export const ScenarioDraftSchema = z.object({
   id: z.string(),
   title: z.string(),
   tagline: z.string(),
-  category: z.enum(['respiratory', 'cardiovascular', 'toxicology', 'metabolic', 'trauma', 'infection', 'environmental', 'mixed']),
+  category: z.enum([
+    "respiratory",
+    "cardiovascular",
+    "toxicology",
+    "metabolic",
+    "trauma",
+    "infection",
+    "environmental",
+    "mixed",
+  ]),
   difficulty: z.number().int(),
   hiddenDiagnosis: z.string(),
   diagnosisKeywords: z.array(z.string()),
@@ -38,22 +72,26 @@ export const ScenarioDraftSchema = z.object({
   patient: z.object({
     ageMin: z.number(),
     ageMax: z.number(),
-    sex: z.enum(['male', 'female', 'any']),
+    sex: z.enum(["male", "female", "any"]),
     requiredHistory: z.array(z.string()),
     unknownIdentity: z.boolean(),
-    smoking: z.enum(['never', 'former', 'current']).nullable(),
-    alcohol: z.enum(['none', 'social', 'heavy']).nullable(),
-    drugs: z.enum(['none', 'cannabis', 'opioids', 'stimulants']).nullable(),
+    smoking: z.enum(["never", "former", "current"]).nullable(),
+    alcohol: z.enum(["none", "social", "heavy"]).nullable(),
+    drugs: z.enum(["none", "cannabis", "opioids", "stimulants"]).nullable(),
   }),
   presentation: z.object({
     handoff: z.string(),
     chiefComplaint: z.string(),
-    arrivalMode: z.enum(['ambulance', 'walk-in', 'transfer']),
+    arrivalMode: z.enum(["ambulance", "walk-in", "transfer"]),
   }),
   pathologies: z.array(
     z.object({
       type: z.string(),
-      paramsJson: z.string().describe('JSON object with this pathology type’s parameters exactly as listed in the capability manifest'),
+      paramsJson: z
+        .string()
+        .describe(
+          "JSON object with this pathology type’s parameters exactly as listed in the capability manifest",
+        ),
       onsetMinutesBeforeArrival: z.number(),
       startsAfterMinutes: z.number(),
     }),
@@ -81,25 +119,50 @@ export type ScenarioDraft = z.infer<typeof ScenarioDraftSchema>;
 
 export const DebriefSchema = z.object({
   summary: z.string(),
-  timeline_commentary: z.array(z.object({ time: z.string(), comment: z.string() })),
-  key_decision_points: z.array(z.object({ time: z.string(), decision: z.string(), assessment: z.string() })),
-  physiology_explanation: z.string().describe('Why the simulated patient responded as they did, in terms of the simulated mechanisms.'),
+  timeline_commentary: z.array(
+    z.object({ time: z.string(), comment: z.string() }),
+  ),
+  key_decision_points: z.array(
+    z.object({
+      time: z.string(),
+      decision: z.string(),
+      assessment: z.string(),
+    }),
+  ),
+  physiology_explanation: z
+    .string()
+    .describe(
+      "Why the simulated patient responded as they did, in terms of the simulated mechanisms.",
+    ),
   missed_information: z.array(z.string()),
-  alternative_actions: z.array(z.string()).describe('Only actions the simulator supports.'),
+  alternative_actions: z
+    .array(z.string())
+    .describe("Only actions the simulator supports."),
   learning_points: z.array(z.string()),
-  simulator_vs_real_world: z.string().describe('Explicitly distinguish simulator behaviour from real clinical guidance.'),
+  simulator_vs_real_world: z
+    .string()
+    .describe(
+      "Explicitly distinguish simulator behaviour from real clinical guidance.",
+    ),
 });
 export type Debrief = z.infer<typeof DebriefSchema>;
 
 /** Request body schemas (untrusted client input). */
 export const PatientRequestSchema = z.object({
   context: z.record(z.string(), z.unknown()),
-  history: z.array(z.object({ role: z.enum(['clinician', 'patient']), text: z.string().max(2000) })).max(30),
+  history: z
+    .array(
+      z.object({
+        role: z.enum(["clinician", "patient"]),
+        text: z.string().max(2000),
+      }),
+    )
+    .max(30),
   question: z.string().min(1).max(1000),
 });
 
 export const InstructorRequestSchema = z.object({
-  mode: z.enum(['hint', 'question']),
+  mode: z.enum(["hint", "question"]),
   question: z.string().max(1500),
   observedTimeline: z.array(z.string().max(400)).max(80),
   patient: z.record(z.string(), z.unknown()),
@@ -110,7 +173,9 @@ export const InstructorRequestSchema = z.object({
   simulatorNotes: z.array(z.string()).max(12),
 });
 
-export const ScenarioRequestSchema = z.object({ prompt: z.string().min(3).max(1000) });
+export const ScenarioRequestSchema = z.object({
+  prompt: z.string().min(3).max(1000),
+});
 
 export const DebriefRequestSchema = z.object({
   scenario: z.record(z.string(), z.unknown()),
@@ -122,7 +187,7 @@ export const DebriefRequestSchema = z.object({
 
 export const ForecastRequestSchema = z.object({
   question: z.string().min(1).max(300),
-  language: z.enum(['en', 'uz']),
+  language: z.enum(["en", "uz"]),
   facts: z.array(z.string().max(600)).min(1).max(40),
 });
 export const ForecastReplySchema = z.object({ reply: z.string().max(1200) });

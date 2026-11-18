@@ -1,6 +1,6 @@
 // Shared helpers for the asset build scripts (Node, no dependencies beyond the stdlib).
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
 
 export async function ensureFile(localPath, url) {
   if (fs.existsSync(localPath) && fs.statSync(localPath).size > 0) return;
@@ -17,25 +17,25 @@ export function parseObj(text) {
   const v = [];
   const vt = [];
   const groups = new Map();
-  let current = 'default';
+  let current = "default";
   const lines = text.split(/\r?\n/);
   for (const line of lines) {
-    if (line.startsWith('v ')) {
+    if (line.startsWith("v ")) {
       const p = line.trim().split(/\s+/);
       v.push(+p[1], +p[2], +p[3]);
-    } else if (line.startsWith('vt ')) {
+    } else if (line.startsWith("vt ")) {
       const p = line.trim().split(/\s+/);
       vt.push(+p[1], +p[2]);
-    } else if (line.startsWith('g ') || line.startsWith('o ')) {
-      current = line.trim().split(/\s+/)[1] ?? 'default';
+    } else if (line.startsWith("g ") || line.startsWith("o ")) {
+      current = line.trim().split(/\s+/)[1] ?? "default";
       if (!groups.has(current)) groups.set(current, []);
-    } else if (line.startsWith('f ')) {
+    } else if (line.startsWith("f ")) {
       const corners = line
         .trim()
         .split(/\s+/)
         .slice(1)
         .map((c) => {
-          const [a, b] = c.split('/');
+          const [a, b] = c.split("/");
           return [parseInt(a, 10) - 1, b ? parseInt(b, 10) - 1 : -1];
         });
       if (!groups.has(current)) groups.set(current, []);
@@ -50,7 +50,7 @@ export function parseTarget(text) {
   const idx = [];
   const d = [];
   for (const line of text.split(/\r?\n/)) {
-    if (!line || line[0] === '#') continue;
+    if (!line || line[0] === "#") continue;
     const p = line.trim().split(/\s+/);
     if (p.length < 4) continue;
     idx.push(parseInt(p[0], 10));
@@ -72,7 +72,11 @@ export class BinWriter {
       this.offset += pad;
     }
     const buf = Buffer.from(typed.buffer, typed.byteOffset, typed.byteLength);
-    const ref = { offset: this.offset, length: typed.length, type: typed.constructor.name };
+    const ref = {
+      offset: this.offset,
+      length: typed.length,
+      type: typed.constructor.name,
+    };
     this.chunks.push(buf);
     this.offset += buf.byteLength;
     return ref;
@@ -91,7 +95,8 @@ export function quantiseSparse(bin, idx, d, minAbs = 1e-6) {
     const x = d[i * 3];
     const y = d[i * 3 + 1];
     const z = d[i * 3 + 2];
-    if (Math.abs(x) < minAbs && Math.abs(y) < minAbs && Math.abs(z) < minAbs) continue;
+    if (Math.abs(x) < minAbs && Math.abs(y) < minAbs && Math.abs(z) < minAbs)
+      continue;
     keepIdx.push(idx[i]);
     keepD.push(x, y, z);
     maxAbs = Math.max(maxAbs, Math.abs(x), Math.abs(y), Math.abs(z));

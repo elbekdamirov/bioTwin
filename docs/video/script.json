@@ -1,12 +1,36 @@
 [
- {"id":"n1","text":"Dunyoda yarim milliarddan ortiq odam diabet bilan, o'nlab millionlar esa yurak yetishmovchiligi bilan yashaydi. Ammo bugun hech bir shifokor dorining bemor tanasiga besh yildagi ta'sirini oldindan ko'ra olmaydi."},
- {"id":"n2","text":"Biz BioTwin'ni yaratdik — surunkali bemorlar uchun raqamli egizak platformasi. Dori avval egizakda sinaladi, keyin bemorga beriladi."},
- {"id":"n3","text":"Har bir egizak bir ming uch yuz sakson to'rtta haqiqiy bemorning ochiq klinik ma'lumotlari asosida quriladi."},
- {"id":"n4","text":"Bitta bemor misolida: tahlillar kiritiladi, dori tanlanadi, va bir necha soniyada besh yillik hisobot tayyor."},
- {"id":"n5","text":"Sun'iy intellekt yordamchisi o'zbek tilida savolga javob beradi va infarkt, insult hamda buyrak xavfini besh yil oldinga hisoblaydi."},
- {"id":"n6","text":"Natija uch o'lchamli tanada ko'rinadi."},
- {"id":"n7","text":"Shoshilinch holatda esa ukol, tabletka yoki tomchini aniq dozasi bilan bering va javobni daqiqama-daqiqa kuzating."},
- {"id":"n8","text":"Platforma tasdiqlangan xalqaro modellar va yigirmadan ortiq klinik sinov natijalariga tayanadi."},
- {"id":"n9","text":"Biznes modelimiz: klinikalar uchun obuna, farmatsevtika uchun virtual sinovlar va sug'urta kompaniyalari uchun xavf tahlili."},
- {"id":"n10","text":"BioTwin. Avval egizakda — keyin bemorda."}
+  {
+    "id": "n1",
+    "text": "Dunyoda yarim milliarddan ortiq odam diabet bilan, o'nlab millionlar esa yurak yetishmovchiligi bilan yashaydi. Ammo bugun hech bir shifokor dorining bemor tanasiga besh yildagi ta'sirini oldindan ko'ra olmaydi."
+  },
+  {
+    "id": "n2",
+    "text": "Biz BioTwin'ni yaratdik — surunkali bemorlar uchun raqamli egizak platformasi. Dori avval egizakda sinaladi, keyin bemorga beriladi."
+  },
+  {
+    "id": "n3",
+    "text": "Har bir egizak bir ming uch yuz sakson to'rtta haqiqiy bemorning ochiq klinik ma'lumotlari asosida quriladi."
+  },
+  {
+    "id": "n4",
+    "text": "Bitta bemor misolida: tahlillar kiritiladi, dori tanlanadi, va bir necha soniyada besh yillik hisobot tayyor."
+  },
+  {
+    "id": "n5",
+    "text": "Sun'iy intellekt yordamchisi o'zbek tilida savolga javob beradi va infarkt, insult hamda buyrak xavfini besh yil oldinga hisoblaydi."
+  },
+  { "id": "n6", "text": "Natija uch o'lchamli tanada ko'rinadi." },
+  {
+    "id": "n7",
+    "text": "Shoshilinch holatda esa ukol, tabletka yoki tomchini aniq dozasi bilan bering va javobni daqiqama-daqiqa kuzating."
+  },
+  {
+    "id": "n8",
+    "text": "Platforma tasdiqlangan xalqaro modellar va yigirmadan ortiq klinik sinov natijalariga tayanadi."
+  },
+  {
+    "id": "n9",
+    "text": "Biznes modelimiz: klinikalar uchun obuna, farmatsevtika uchun virtual sinovlar va sug'urta kompaniyalari uchun xavf tahlili."
+  },
+  { "id": "n10", "text": "BioTwin. Avval egizakda — keyin bemorda." }
 ]

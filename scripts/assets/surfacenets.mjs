@@ -83,24 +83,49 @@ export class Grid {
     const seed = new Uint8Array(this.size);
     const mark = (x, y, z) => {
       const [i, j, k] = this.cellOf([x, y, z]);
-      if (i >= 0 && j >= 0 && k >= 0 && i < this.nx && j < this.ny && k < this.nz) seed[this.index(i, j, k)] = 1;
+      if (
+        i >= 0 &&
+        j >= 0 &&
+        k >= 0 &&
+        i < this.nx &&
+        j < this.ny &&
+        k < this.nz
+      )
+        seed[this.index(i, j, k)] = 1;
     };
-    for (let i = 0; i < positions.length; i += 3) mark(positions[i], positions[i + 1], positions[i + 2]);
+    for (let i = 0; i < positions.length; i += 3)
+      mark(positions[i], positions[i + 1], positions[i + 2]);
     if (indices) {
       // sample triangle interiors so thin surfaces seal
       for (let t = 0; t < indices.length; t += 3) {
-        const a = indices[t] * 3, b = indices[t + 1] * 3, c = indices[t + 2] * 3;
-        const la = Math.hypot(positions[b] - positions[a], positions[b + 1] - positions[a + 1], positions[b + 2] - positions[a + 2]);
-        const lb = Math.hypot(positions[c] - positions[a], positions[c + 1] - positions[a + 1], positions[c + 2] - positions[a + 2]);
+        const a = indices[t] * 3,
+          b = indices[t + 1] * 3,
+          c = indices[t + 2] * 3;
+        const la = Math.hypot(
+          positions[b] - positions[a],
+          positions[b + 1] - positions[a + 1],
+          positions[b + 2] - positions[a + 2],
+        );
+        const lb = Math.hypot(
+          positions[c] - positions[a],
+          positions[c + 1] - positions[a + 1],
+          positions[c + 2] - positions[a + 2],
+        );
         const steps = Math.ceil(Math.max(la, lb) / (this.voxel * 0.7));
         if (steps <= 1) continue;
         for (let u = 0; u <= steps; u++)
           for (let v = 0; v <= steps - u; v++) {
-            const s = u / steps, r = v / steps, q = 1 - s - r;
+            const s = u / steps,
+              r = v / steps,
+              q = 1 - s - r;
             mark(
               positions[a] * q + positions[b] * s + positions[c] * r,
-              positions[a + 1] * q + positions[b + 1] * s + positions[c + 1] * r,
-              positions[a + 2] * q + positions[b + 2] * s + positions[c + 2] * r,
+              positions[a + 1] * q +
+                positions[b + 1] * s +
+                positions[c + 1] * r,
+              positions[a + 2] * q +
+                positions[b + 2] * s +
+                positions[c + 2] * r,
             );
           }
       }
@@ -125,7 +150,8 @@ export class Grid {
     const dOut = this.distance(outside); // distance to solid, for outside voxels
     const dIn = this.distance(inside); // distance to empty, for inside voxels
     const s = new Float32Array(this.size);
-    for (let i = 0; i < this.size; i++) s[i] = solid[i] ? -dIn[i] + this.voxel * 0.5 : dOut[i] - this.voxel * 0.5;
+    for (let i = 0; i < this.size; i++)
+      s[i] = solid[i] ? -dIn[i] + this.voxel * 0.5 : dOut[i] - this.voxel * 0.5;
     return s;
   }
   blur(field, passes = 1) {
@@ -139,9 +165,12 @@ export class Grid {
             for (let x = 0; x < nx; x++) {
               const i = this.index(x, y, z);
               const nb = (dx) => {
-                const xx = axis === 0 ? Math.min(nx - 1, Math.max(0, x + dx)) : x;
-                const yy = axis === 1 ? Math.min(ny - 1, Math.max(0, y + dx)) : y;
-                const zz = axis === 2 ? Math.min(nz - 1, Math.max(0, z + dx)) : z;
+                const xx =
+                  axis === 0 ? Math.min(nx - 1, Math.max(0, x + dx)) : x;
+                const yy =
+                  axis === 1 ? Math.min(ny - 1, Math.max(0, y + dx)) : y;
+                const zz =
+                  axis === 2 ? Math.min(nz - 1, Math.max(0, z + dx)) : z;
                 return f[this.index(xx, yy, zz)];
               };
               o[i] = 0.25 * nb(-1) + 0.5 * f[i] + 0.25 * nb(1);
@@ -158,24 +187,45 @@ export function surfaceNets(grid, field, iso = 0) {
   const vIndex = new Int32Array(grid.size).fill(-1);
   const pos = [];
   const corner = [
-    [0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0],
-    [0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 1],
+    [0, 0, 0],
+    [1, 0, 0],
+    [0, 1, 0],
+    [1, 1, 0],
+    [0, 0, 1],
+    [1, 0, 1],
+    [0, 1, 1],
+    [1, 1, 1],
   ];
   const edges = [
-    [0, 1], [2, 3], [4, 5], [6, 7],
-    [0, 2], [1, 3], [4, 6], [5, 7],
-    [0, 4], [1, 5], [2, 6], [3, 7],
+    [0, 1],
+    [2, 3],
+    [4, 5],
+    [6, 7],
+    [0, 2],
+    [1, 3],
+    [4, 6],
+    [5, 7],
+    [0, 4],
+    [1, 5],
+    [2, 6],
+    [3, 7],
   ];
   for (let z = 0; z < nz - 1; z++)
     for (let y = 0; y < ny - 1; y++)
       for (let x = 0; x < nx - 1; x++) {
-        const vals = corner.map(([a, b, c]) => field[grid.index(x + a, y + b, z + c)] - iso);
+        const vals = corner.map(
+          ([a, b, c]) => field[grid.index(x + a, y + b, z + c)] - iso,
+        );
         let mask = 0;
         vals.forEach((v, i) => (mask |= (v < 0 ? 1 : 0) << i));
         if (mask === 0 || mask === 255) continue;
-        let sx = 0, sy = 0, sz = 0, n = 0;
+        let sx = 0,
+          sy = 0,
+          sz = 0,
+          n = 0;
         for (const [a, b] of edges) {
-          const va = vals[a], vb = vals[b];
+          const va = vals[a],
+            vb = vals[b];
           if (va < 0 === vb < 0) continue;
           const t = va / (va - vb);
           sx += corner[a][0] + (corner[b][0] - corner[a][0]) * t;
@@ -184,7 +234,11 @@ export function surfaceNets(grid, field, iso = 0) {
           n++;
         }
         vIndex[grid.index(x, y, z)] = pos.length / 3;
-        pos.push(min[0] + (x + sx / n) * voxel, min[1] + (y + sy / n) * voxel, min[2] + (z + sz / n) * voxel);
+        pos.push(
+          min[0] + (x + sx / n) * voxel,
+          min[1] + (y + sy / n) * voxel,
+          min[2] + (z + sz / n) * voxel,
+        );
       }
   const idx = [];
   const quad = (a, b, c, d, flip) => {
@@ -200,28 +254,54 @@ export function surfaceNets(grid, field, iso = 0) {
         if (x < nx - 1) {
           const f1 = field[grid.index(x + 1, y, z)] - iso < 0;
           if (f0 !== f1)
-            quad(vIndex[grid.index(x, y - 1, z - 1)], vIndex[grid.index(x, y, z - 1)], vIndex[grid.index(x, y, z)], vIndex[grid.index(x, y - 1, z)], f0);
+            quad(
+              vIndex[grid.index(x, y - 1, z - 1)],
+              vIndex[grid.index(x, y, z - 1)],
+              vIndex[grid.index(x, y, z)],
+              vIndex[grid.index(x, y - 1, z)],
+              f0,
+            );
         }
         if (y < ny - 1) {
           const f1 = field[grid.index(x, y + 1, z)] - iso < 0;
           if (f0 !== f1)
-            quad(vIndex[grid.index(x - 1, y, z - 1)], vIndex[grid.index(x - 1, y, z)], vIndex[grid.index(x, y, z)], vIndex[grid.index(x, y, z - 1)], f0);
+            quad(
+              vIndex[grid.index(x - 1, y, z - 1)],
+              vIndex[grid.index(x - 1, y, z)],
+              vIndex[grid.index(x, y, z)],
+              vIndex[grid.index(x, y, z - 1)],
+              f0,
+            );
         }
         if (z < nz - 1) {
           const f1 = field[grid.index(x, y, z + 1)] - iso < 0;
           if (f0 !== f1)
-            quad(vIndex[grid.index(x - 1, y - 1, z)], vIndex[grid.index(x, y - 1, z)], vIndex[grid.index(x, y, z)], vIndex[grid.index(x - 1, y, z)], f0);
+            quad(
+              vIndex[grid.index(x - 1, y - 1, z)],
+              vIndex[grid.index(x, y - 1, z)],
+              vIndex[grid.index(x, y, z)],
+              vIndex[grid.index(x - 1, y, z)],
+              f0,
+            );
         }
       }
   return { positions: new Float32Array(pos), indices: new Uint32Array(idx) };
 }
 
 /** Taubin λ|μ smoothing (volume preserving-ish). */
-export function taubin(positions, indices, iterations = 10, lambda = 0.5, mu = -0.53) {
+export function taubin(
+  positions,
+  indices,
+  iterations = 10,
+  lambda = 0.5,
+  mu = -0.53,
+) {
   const n = positions.length / 3;
   const nb = Array.from({ length: n }, () => new Set());
   for (let t = 0; t < indices.length; t += 3) {
-    const a = indices[t], b = indices[t + 1], c = indices[t + 2];
+    const a = indices[t],
+      b = indices[t + 1],
+      c = indices[t + 2];
     nb[a].add(b).add(c);
     nb[b].add(a).add(c);
     nb[c].add(a).add(b);
@@ -236,7 +316,9 @@ export function taubin(positions, indices, iterations = 10, lambda = 0.5, mu = -
         out.set(p.subarray(i * 3, i * 3 + 3), i * 3);
         continue;
       }
-      let x = 0, y = 0, z = 0;
+      let x = 0,
+        y = 0,
+        z = 0;
       for (const j of l) {
         x += p[j * 3];
         y += p[j * 3 + 1];
