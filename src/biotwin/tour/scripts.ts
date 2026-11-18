@@ -1,0 +1,36 @@
+export const narrationVersion = '5-chronic-forecast';
+export type TourLanguage = 'en' | 'uz';
+export const tourSteps = [
+  { id: 'welcome', anchor: 'welcome', studio: false,
+    en: ['Meet BioTwin', 'BioTwin is a digital twin for people with chronic disease such as diabetes or heart failure. Before a medicine is prescribed, the doctor tries it on the twin and sees a five-year forecast for the heart, brain, kidneys and metabolism. It is a research and education prototype, not a clinical decision tool.'],
+    uz: ['BioTwin bilan tanishing', 'BioTwin diabet yoki yurak yetishmovchiligi kabi surunkali kasalligi bor bemorlar uchun raqamli egizak. Dori yozishdan oldin shifokor uni egizakda sinab ko‘radi va yurak, miya, buyrak hamda moddalar almashinuvi uchun besh yillik prognozni ko‘radi. Bu tadqiqot va ta’lim prototipi, klinik qaror vositasi emas.'] },
+  { id: 'language', anchor: 'language', studio: false,
+    en: ['Your language, your workspace', 'Use the language switch in the header for English or Uzbek. The guide captions and voice follow your selection. In the studio, navigation opens the patient profile, anatomy, experiments, timeline, and reports.'],
+    uz: ['Til va ish maydoni', 'Yuqoridagi tugmalar orqali o‘zbek yoki ingliz tilini tanlang. Yo‘riqnoma matni va ovozi ham tanlangan tilda bo‘ladi. Studiyada profil, anatomiya, tajribalar, vaqt jadvali va hisobotlar mavjud.'] },
+  { id: 'patient', anchor: 'patients', studio: false,
+    en: ['Choose a patient', 'Start with a real diabetes patient from the public NHANES survey, browse more than a thousand real patients, or enter your own measurements. Patient records in the header keeps a local database of your patients.'],
+    uz: ['Bemorni tanlang', 'Ochiq NHANES tadqiqotidagi haqiqiy diabet bemori bilan boshlang, mingdan ortiq haqiqiy bemorlarni ko‘ring yoki o‘z o‘lchovlaringizni kiriting. Yuqoridagi Bemor yozuvlari bemorlaringizning mahalliy bazasini saqlaydi.'] },
+  { id: 'forecast', anchor: 'forecast', studio: true,
+    en: ['Ask the twin about a medicine', 'Type a question such as add empagliflozin, or compare two medicines. The twin runs validated risk equations with results from clinical trials and shows the five-year risk of heart attack, stroke and kidney failure, body markers and side effects. Select an organ card to see it in 3D.'],
+    uz: ['Egizakdan dori haqida so‘rang', 'Masalan, empagliflozin qo‘shing deb yozing yoki ikki dorini taqqoslang. Egizak tasdiqlangan xavf tenglamalari va klinik sinov natijalari asosida infarkt, insult va buyrak yetishmovchiligining besh yillik xavfini, tana ko‘rsatkichlari va nojo‘ya ta’sirlarni ko‘rsatadi. A’zo kartasini tanlab, uni 3D da ko‘ring.'] },
+  { id: 'anatomy', anchor: 'stage', studio: true,
+    en: ['Explore the body', 'Drag the patient to rotate and scroll to zoom. Reveal the heart or another anatomy layer, then select a structure to focus or isolate it. Reset camera brings you back to the full view.'],
+    uz: ['Anatomiyani o‘rganing', 'Bemorni aylantirish uchun suring, yaqinlashtirish uchun sichqoncha g‘ildiragini aylantiring. Yurak yoki boshqa qatlamni oching. Tuzilmani tanlab, unga yaqinlashing yoki uni ajrating. Kamerani tiklash umumiy ko‘rinishga qaytaradi.'] },
+  { id: 'metrics', anchor: 'metrics', studio: true,
+    en: ['Read the recorded signals', 'Choose a biomarker in the chart selector. Values and curves come from the simulation. After creating twin B, both branches share a time axis. The difference is calculated only between samples at the same simulated time.'],
+    uz: ['Ko‘rsatkichlarni kuzating', 'Grafik ro‘yxatidan biomarkerni tanlang. Qiymatlar va chiziqlar simulyatsiyadan olinadi. B egizagi yaratilgach, ikkala tarmoq bir xil vaqt o‘qida ko‘rsatiladi. Farq bir vaqtdagi namunalar orasida hisoblanadi.'] },
+  { id: 'transport', anchor: 'transport', studio: true,
+    en: ['Control simulation time', 'Play and pause control the simulation. Choose a speed or advance five minutes. Use reset for a fresh experiment. Reviewing the recorded timeline shows earlier samples without inventing past measurements.'],
+    uz: ['Vaqtni boshqaring', 'Boshlash va pauza tugmalari simulyatsiyani boshqaradi. Tezlikni tanlang yoki besh daqiqa oldinga o‘ting. Yangi tajriba uchun tiklash tugmasini bosing. Vaqt jadvali avval qayd etilgan namunalarni ko‘rsatadi.'] },
+  { id: 'compare', anchor: 'compare', studio: true,
+    en: ['Compare two scenarios', 'Open Compare, create matched twins, and configure a supported intervention for B. Review the parameter before confirming it yourself. Run the comparison and inspect the measured difference. These are simulated responses with clinical limitations.'],
+    uz: ['Ikki ssenariyni taqqoslang', 'Taqqoslash bo‘limida mos egizaklarni yarating va B uchun model qo‘llaydigan muolajani sozlang. Tasdiqlashdan oldin parametrni tekshiring. Tajribani ishga tushirib, farqni kuzating. Natijalar simulyatsiyaga tegishli.'] },
+  { id: 'reports', anchor: 'reports', studio: true,
+    en: ['Review and share the record', 'Reports exports simulated measurements and treatment actions. Patient records has separate exports for entered health observations, goals and local appointments. Save twin to database preserves both branches. Restore them from the Sessions tab of that patient record.'],
+    uz: ['Natijalarni ko‘ring va saqlang', 'Hisobotlar simulyatsiya o‘lchovlari va muolaja amallarini chiqaradi. Bemor yozuvlarida kiritilgan kuzatuvlar, maqsadlar va mahalliy qabullar alohida saqlanadi. Egizakni bazaga saqlash ikkala tarmoqni saqlaydi. Ularni bemor yozuvining Sessions bo‘limidan tiklang.'] },
+  { id: 'finish', anchor: 'guide', studio: false,
+    en: ['Ready to explore', 'Continue at your own pace. Open the guide from the header whenever you need it. You can switch languages, mute narration, replay a step, or use captions throughout. Your next experiment always starts with your own choice.'],
+    uz: ['O‘rganishga tayyorsiz', 'O‘zingizga qulay tezlikda davom eting. Yo‘riqnomani yuqoridagi tugmadan qayta ochishingiz mumkin. Tilni almashtiring, ovozni o‘chiring yoki qadamni qayta eshiting. Har bir yangi tajribani o‘zingiz boshlaysiz.'] },
+] as const;
+export type TourStepId = typeof tourSteps[number]['id'];
+

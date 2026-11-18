@@ -1,0 +1,23 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.*
+!.env.example
+assets-src/
+test-results/
+playwright-report/
+qa-screenshots/tmp/
+*.tsbuildinfo
+.DS_Store
+
+# submission package (generated; the zip is uploaded to cloud storage)
+submission/
+
+# Local patient database and SQLite journal files
+data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.claude

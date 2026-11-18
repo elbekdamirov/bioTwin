@@ -1,0 +1,140 @@
+/// <reference lib="dom" />
+import { expect, test } from '@playwright/test';
+test.beforeEach(async ({ page }) => { await page.addInitScript(() => localStorage.setItem('biotwin-tour-v1', 'dismissed')); });
+
+test('renders the local 3D avatar, controls real anatomy and runs an isolated treatment', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const models: string[] = [];
+  page.on('response', response => {
+    if (response.ok() && response.url().includes('/assets/')) models.push(response.url());
+  });
+  await page.goto('/');
+  await page.getByRole('button', { name: /BT-M01 Type 1 diabetes/ }).click();
+  const stage = page.locator('.canvas-wrap');
+  await expect(stage).toHaveAttribute('data-stage', 'ready', { timeout: 45000 });
+  await expect(stage.locator('canvas')).toBeVisible();
+  expect(models.some(url => url.endsWith('/human.bin'))).toBe(true);
+  const anatomy = page.waitForResponse(response => response.url().endsWith('/cardiovascular.glb') && response.ok());
+  await page.getByRole('button', { name: 'Heart', exact: true }).click();
+  await anatomy;
+  await expect(page.getByRole('button', { name: 'Heart', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  const canvas = await stage.locator('canvas').boundingBox();
+  expect(canvas).toBeTruthy();
+  const focus = page.getByRole('button', { name: 'Focus selected structure' });
+  await expect(async () => {
+    await page.mouse.click(canvas!.x + canvas!.width * .521, canvas!.y + canvas!.height * .52);
+    await expect(focus).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 15000 });
+  await focus.click();
+  await page.getByRole('button', { name: 'Isolate selected structure' }).click();
+  await page.getByRole('button', { name: 'Exit isolation' }).click();
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await page.mouse.move(canvas!.x + canvas!.width * 0.64, canvas!.y + canvas!.height * 0.41);
+  await page.mouse.down();
+  await page.mouse.move(canvas!.x + canvas!.width * 0.72, canvas!.y + canvas!.height * 0.50, { steps: 7 });
+  await page.mouse.up();
+  await page.mouse.wheel(0, -180);
+  await page.getByRole('button', { name: 'Reset camera' }).click();
+  await expect(page.getByRole('button', { name: 'Front', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Compare A / B', exact: true }).click();
+  await page.getByRole('button', { name: 'Create matched twin' }).click();
+  await expect(page.locator('.twin-viewport')).toHaveCount(2);
+  await expect(page.locator('.twin-viewport[data-twin="A"] [data-stage]')).toHaveAttribute('data-stage', 'ready', { timeout: 45000 });
+  await expect(page.locator('.twin-viewport[data-twin="B"] [data-stage]')).toHaveAttribute('data-stage', 'ready', { timeout: 45000 });
+  await expect(page.locator('.twin-viewport canvas')).toHaveCount(2);
+  await page.getByRole('button', { name: 'Configure B' }).click();
+  await page.getByLabel('Virtual infusion rate').selectOption('0.05');
+  await page.getByRole('button', { name: 'Confirm and apply' }).click();
+  await page.getByRole('button', { name: 'Run comparison' }).click();
+  await expect(page.locator('.branch-pair')).toContainText('05:05');
+  const twinA = page.locator('.twin-viewport[data-twin="A"]');
+  const twinB = page.locator('.twin-viewport[data-twin="B"]');
+  await expect(twinA).toHaveAttribute('data-tick', '3050');
+  await expect(twinB).toHaveAttribute('data-tick', '3050');
+  expect(Number(await twinB.getAttribute('data-glucose'))).toBeLessThan(Number(await twinA.getAttribute('data-glucose')));
+  await expect(page.locator('.comparison-value')).toContainText(/-\d+\.\d+/);
+  await page.getByRole('button', { name: 'Timeline', exact: true }).click();
+  await page.getByRole('slider', { name: 'Snapshot · B' }).press('Home');
+  await expect(page.locator('.transport-clock')).toContainText('00:00');
+  await expect(page.locator('.twin-viewport[data-twin="A"]')).toHaveAttribute('data-tick', '0');
+  await expect(page.locator('.twin-viewport[data-twin="B"]')).toHaveAttribute('data-tick', '0');
+  await page.getByRole('button', { name: 'A Baseline', exact: true }).click();
+  await expect(page.locator('.stage')).toHaveAttribute('data-branch', 'A');
+  await expect(page.locator('.transport-clock')).toContainText('00:00');
+  await expect(page.locator('.twin-viewport[data-twin="A"]')).toHaveAttribute('data-tick', '0');
+  await expect(page.locator('.twin-viewport[data-twin="B"]')).toHaveAttribute('data-tick', '0');
+  await page.getByRole('button', { name: '5-year outlook' }).click();
+  await expect(page.locator('.inspector .forecast-report')).toContainText('Steno Type 1 Risk Engine');
+  await page.getByRole('button', { name: 'Recorded', exact: true }).click();
+  await page.getByRole('button', { name: 'Back to live' }).click();
+  await expect(page.locator('.transport-clock')).toContainText('05:05');
+  await page.getByRole('button', { name: 'Compare A / B', exact: true }).click();
+  await page.getByRole('button', { name: 'Save comparison' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'Session saved on this browser.' })).toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: 'Load saved session' }).click();
+  await expect(page.getByRole('heading', { name: 'Type 1 diabetes', level: 1 })).toBeVisible();
+  await page.getByRole('button', { name: 'Reports', exact: true }).click();
+  const csv = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Time series CSV' }).click();
+  expect((await csv).suggestedFilename()).toBe('biotwin-timeseries.csv');
+  await page.emulateMedia({ media: 'print' });
+  await expect(page.getByRole('heading', { name: 'BioTwin · Digital twin report' })).toBeVisible();
+  await expect(page.locator('.report-print .forecast-report')).toContainText('Steno Type 1 Risk Engine');
+  await page.emulateMedia({ media: 'screen' });
+  const downloading = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Session & events JSON' }).click();
+  const download = await downloading;
+  const stream = await download.createReadStream();
+  const parts: Buffer[] = [];
+  for await (const chunk of stream!) parts.push(Buffer.from(chunk));
+  const data = JSON.parse(Buffer.concat(parts).toString());
+  expect(data.events.A.some((e: { code: string }) => e.code === 'drug.infusion')).toBe(false);
+  expect(data.events.B.some((e: { code: string }) => e.code === 'drug.infusion')).toBe(true);
+  expect(data.actions.A).toEqual([]);
+  expect(data.actions.B[0].action).toMatchObject({ type: 'drug.infusion', drugId: 'insulinRegular', rate: .05 });
+  const select = (twin: string) => data.recorded.filter((row: { twin: string }) => row.twin === twin);
+  expect(select('A').map((row: { tick: number }) => row.tick)).toEqual(select('B').map((row: { tick: number }) => row.tick));
+  expect(select('B').at(-1).glucose).toBeLessThan(select('A').at(-1).glucose);
+  await page.getByRole('button', { name: 'Compare A / B', exact: true }).click();
+  await page.getByRole('button', { name: 'Reset B', exact: true }).click();
+  await expect(page.locator('.comparison-value')).toContainText(/^0\.00/);
+  expect(errors).toEqual([]);
+});
+
+test('defaults to dark and persists the light override while localized', async ({ page }) => {
+  await page.goto('/');
+  const root = page.locator('html');
+  await expect(root).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('.library')).toHaveCSS('background-color', 'rgb(11, 11, 12)');
+  await page.getByRole('button', { name: 'Switch to light mode' }).click();
+  await expect(root).toHaveAttribute('data-theme', 'light');
+  await expect(page.locator('.library')).toHaveCSS('background-color', 'rgb(250, 251, 246)');
+  await page.reload();
+  await expect(root).toHaveAttribute('data-theme', 'light');
+  await expect(page.locator('.library')).toHaveCSS('background-color', 'rgb(250, 251, 246)');
+  await page.getByRole('button', { name: 'UZ', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Haqiqiy diabet bemori bilan boshlash' })).toBeVisible();
+  await page.getByRole('button', { name: 'Qorong‘i rejimga o‘tish' }).click();
+  await expect(root).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('.library')).toHaveCSS('background-color', 'rgb(11, 11, 12)');
+  await expect(page.locator('.safety, footer')).toHaveCount(0);
+});
+
+test('keeps primary actions usable at desktop, tablet and phone widths', async ({ page }) => {
+  for (const viewport of [
+    { width: 1440, height: 900 }, { width: 1280, height: 800 }, { width: 768, height: 1024 }, { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/');
+    const open = page.getByRole('button', { name: /BT-M01 Type 1 diabetes/ });
+    await expect(open).toBeVisible();
+    await open.click();
+    await expect(page.getByRole('heading', { name: 'Type 1 diabetes', level: 1 })).toBeVisible({ timeout: 30000 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width);
+    await expect(page.getByRole('button', { name: 'Reset camera' })).toBeInViewport();
+  }
+});

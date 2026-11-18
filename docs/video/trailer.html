@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="uz"><head><meta charset="utf-8"><title>BioTwin trailer</title>
+<link rel="stylesheet" href="file:///D:/Code/BioTwin-database-upgrade/public/fonts/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#0B0B0C;font-family:"DM Sans",system-ui,sans-serif;color:#fff}
+.scene{position:absolute;inset:0;opacity:0;transition:opacity .35s}
+.scene.on{opacity:1}
+.shot{position:absolute;inset:0;background-size:cover;background-position:center;filter:saturate(1.05)}
+.scene.on .shot{animation:kb var(--d) linear forwards}
+@keyframes kb{from{transform:scale(1.02) translate(0,0)}to{transform:scale(var(--z,1.16)) translate(var(--x,-2%),var(--y,-2%))}}
+.shade{position:absolute;inset:0;background:linear-gradient(90deg,#0B0B0Cf2 0%,#0B0B0Cb0 36%,#0B0B0C10 70%),linear-gradient(0deg,#0B0B0Cee 0%,transparent 34%)}
+.tag{position:absolute;left:110px;top:150px;font:600 22px "IBM Plex Mono",monospace;letter-spacing:.28em;color:#C6F432;opacity:0}
+.title{position:absolute;left:104px;top:200px;font-weight:700;font-size:118px;line-height:.95;letter-spacing:-.05em;max-width:1100px;opacity:0}
+.title em{font-family:"Instrument Serif",serif;font-style:italic;font-weight:400;color:#C6F432}
+.scene.on .tag{animation:in .5s .1s cubic-bezier(.2,1.4,.4,1) forwards}
+.scene.on .title{animation:slam .7s .2s cubic-bezier(.16,1.3,.3,1) forwards}
+@keyframes in{from{opacity:0;transform:translateX(-60px)}to{opacity:1;transform:none}}
+@keyframes slam{0%{opacity:0;transform:scale(1.5);filter:blur(18px)}100%{opacity:1;transform:none;filter:none}}
+.stats{position:absolute;left:110px;top:470px;display:flex;gap:28px}
+.stat{background:#141516e8;border:1px solid #ffffff22;border-radius:26px;padding:22px 30px;opacity:0;min-width:250px}
+.stat b{display:block;font-size:64px;letter-spacing:-.04em;color:#C6F432;line-height:1}
+.stat span{font-size:22px;color:#c9ccc6}
+.scene.on .stat{animation:pop .5s cubic-bezier(.2,1.5,.4,1) forwards}
+.scene.on .stat:nth-child(1){animation-delay:.7s}.scene.on .stat:nth-child(2){animation-delay:.95s}.scene.on .stat:nth-child(3){animation-delay:1.2s}
+@keyframes pop{from{opacity:0;transform:translateY(40px) scale(.8)}to{opacity:1;transform:none}}
+.cap{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);width:1500px;text-align:center;font-size:40px;font-weight:600;line-height:1.3;text-shadow:0 3px 18px #000}
+.cap span{display:inline-block;opacity:0;margin:0 .14em}
+.cap span.lit{animation:word .25s forwards}
+@keyframes word{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.cap .hl{color:#C6F432}
+.flash{position:absolute;inset:0;background:#C6F432;opacity:0;pointer-events:none;mix-blend-mode:screen}
+.flash.go{animation:flash .45s}
+@keyframes flash{0%{opacity:.55}100%{opacity:0}}
+.bar{position:absolute;left:0;top:0;height:6px;background:#C6F432;width:0}
+.brand{position:absolute;right:70px;top:54px;display:flex;align-items:center;gap:14px;font-weight:700;font-size:34px;letter-spacing:-.05em}
+.brand i{width:46px;height:46px;border-radius:50% 50% 50% 12px;background:#C6F432;display:grid;place-items:center;color:#0B0B0C;font-style:normal;font-size:26px}
+.chips{position:absolute;left:110px;top:470px;display:flex;flex-wrap:wrap;gap:14px;max-width:1000px}
+.chip{border:2px solid #C6F432;border-radius:999px;padding:12px 24px;font-size:28px;font-weight:600;opacity:0;background:#0B0B0Ccc}
+.scene.on .chip{animation:pop .45s cubic-bezier(.2,1.5,.4,1) forwards}
+.end{display:grid;place-items:center;text-align:center;background:radial-gradient(circle at 50% 45%,#2a3510 0%,#0B0B0C 60%)}
+.end h1{font-size:200px;letter-spacing:-.07em;line-height:.9;opacity:0}
+.end p{font-family:"Instrument Serif",serif;font-style:italic;font-size:76px;color:#C6F432;opacity:0;margin-top:20px}
+.scene.on.end h1{animation:slam .8s .1s cubic-bezier(.16,1.3,.3,1) forwards}
+.scene.on.end p{animation:in .6s .8s forwards}
+.pulse{position:absolute;width:900px;height:900px;border-radius:50%;border:3px solid #C6F43255;left:510px;top:90px;opacity:0}
+.scene.on .pulse{animation:ring 1.6s ease-out infinite}
+@keyframes ring{from{transform:scale(.4);opacity:.9}to{transform:scale(1.3);opacity:0}}
+.steps{position:absolute;left:110px;top:470px;display:grid;gap:12px}.steps b{font-size:34px;padding:10px 22px;border-radius:14px;background:#141516cc;border:2px solid #ffffff22;color:#9a9e98;transition:.2s}.steps b.now{border-color:#C6F432;color:#fff;background:#1d2410ee}.timer{position:absolute;right:90px;bottom:170px;font:700 96px "IBM Plex Mono",monospace;color:#C6F432;text-shadow:0 0 30px #C6F43266}.shot{transition:opacity .25s}
+</style></head><body>
+<div id="stage"></div><div class="flash" id="flash"></div><div class="bar" id="bar"></div>
+<div class="brand"><i>∿</i>BioTwin</div>
+<script>
+const S=[
+ {a:'n1',shot:'landing',tag:'MUAMMO',title:'Bitta dori.<br><em>Besh yil noma’lum.</em>',cap:'Dunyoda [yarim milliarddan ortiq] odam diabet bilan, o‘nlab millionlar yurak yetishmovchiligi bilan yashaydi. Ammo dorining [besh yillik] ta’sirini hech kim oldindan ko‘ra olmaydi.',stats:[['500M+','diabet bilan'],['10M+','yurak yetishmovchiligi'],['0','individual prognoz']],z:1.1},
+ {a:'n2',shot:'forecast',tag:'YECHIM',title:'BioTwin —<br><em>raqamli egizak.</em>',cap:'Surunkali bemorlar uchun raqamli egizak platformasi. Dori [avval egizakda] sinaladi, keyin bemorga beriladi.',x:'-4%',y:'-1%'},
+ {a:'n3',shot:'picker',tag:'HAQIQIY MA’LUMOTLAR',title:'1 384 ta<br><em>haqiqiy bemor.</em>',cap:'Har bir egizak [1 384 ta haqiqiy bemorning] ochiq klinik ma’lumotlari asosida quriladi.',stats:[['1 085','NHANES diabet'],['299','UCI yurak'],['100%','ochiq manba']]},
+ {a:'n4',shots:['m2','m3','m4','m5'],steps:['1 · Tahlillar','2 · Dori','3 · Ko‘rsatkichlar','4 · Hisobot'],tag:'DEMO · 1 BEMOR',title:'5 yillik hisobot<br><em>soniyalarda.</em>',cap:'Bitta bemor misolida: [tahlillar] kiritiladi, [dori] tanlanadi — va [5 yillik hisobot] tayyor.',z:1.08},
+ {a:'n5',shot:'chat',tag:'AI YORDAMCHI',title:'So‘rang.<br><em>Egizak javob beradi.</em>',cap:'Sun’iy intellekt [o‘zbek tilida] javob beradi: infarkt, insult va buyrak xavfi [besh yil oldinga].',x:'-8%',y:'-3%',z:1.2},
+ {a:'n6',shot:'heart',tag:'3D TANA',title:'Ta’sirni<br><em>ko‘ring.</em>',cap:'Natija [uch o‘lchamli tanada] ko‘rinadi.',z:1.25,x:'-3%',y:'-6%',pulse:1},
+ {a:'n7',shots:['drugs','ab'],tag:'SHOSHILINCH DORI',title:'Ukol. Tabletka.<br><em>Tomchi.</em>',cap:'Ukol, tabletka yoki tomchini [aniq dozasi] bilan bering va javobni [daqiqama-daqiqa] kuzating.'},
+ {a:'n8',shot:'model',tag:'TEXNOLOGIYA',title:'Fan asosida<br><em>qurilgan.</em>',cap:'Tasdiqlangan [xalqaro modellar] va [20+ klinik sinov] natijalariga tayanadi.',chips:['UKPDS 56/60','Steno T1','MAGGIC','KFRE','20+ RCT','Monte-Karlo','React + Three.js','Vitalis fiziologiya']},
+ {a:'n9',shot:'hf',tag:'BIZNES MODEL',title:'Daromad<br><em>modeli.</em>',cap:'Klinikalar uchun [obuna], farmatsevtika uchun [virtual sinovlar], sug‘urta uchun [xavf tahlili].',chips:['Klinikalar · SaaS obuna','Farma · virtual sinov','Sug‘urta · xavf tahlili']},
+ {a:'n10',end:1,cap:''}
+];
+
+const DUR=window.DUR||[];S.forEach((s,i)=>s.d=DUR[i]||6);
+const stage=document.getElementById('stage');
+const total=S.reduce((a,s)=>a+s.d,0);
+S.forEach((s,i)=>{
+  const el=document.createElement('div');el.className='scene'+(s.end?' end':'');el.style.setProperty('--d',s.d+'s');
+  if(s.z)el.style.setProperty('--z',s.z); if(s.x)el.style.setProperty('--x',s.x); if(s.y)el.style.setProperty('--y',s.y);
+  if(s.end){el.innerHTML='<div><h1>BioTwin</h1><p>Avval egizakda — keyin bemorda.</p></div>';}
+  else{
+    el.innerHTML=`${(s.shots||[s.shot]).map((x,k)=>`<div class="shot" data-k="${k}" style="background-image:url(${x}.png);${k?"opacity:0":""}"></div>`).join("")}${s.steps?`<div class="steps">${s.steps.map(x=>`<b>${x}</b>`).join("")}</div><div class="timer">0.0s</div>`:""}<div class="shade"></div>${s.pulse?'<div class="pulse"></div>':''}
+    <div class="tag">${String(i+1).padStart(2,'0')} · ${s.tag}</div><div class="title">${s.title}</div>
+    ${s.stats?`<div class="stats">${s.stats.map(([b,t])=>`<div class="stat"><b>${b}</b><span>${t}</span></div>`).join('')}</div>`:''}
+    ${s.chips?`<div class="chips">${s.chips.map((c,k)=>`<div class="chip" style="animation-delay:${.6+k*.12}s">${c}</div>`).join('')}</div>`:''}
+    <div class="cap">${s.cap.split(/(\[[^\]]+\])/).flatMap(p=>p.startsWith('[')?[`<span class="hl">${p.slice(1,-1)}</span>`]:p.split(' ').filter(Boolean).map(w=>`<span>${w}</span>`)).join(' ')}</div>`;
+  }
+  stage.appendChild(el); s.el=el;
+});
+function run(){
+  const t0=performance.now(); let cur=-1;
+  function tick(){
+    const t=(performance.now()-t0)/1000;
+    document.getElementById('bar').style.width=Math.min(100,t/total*100)+'%';
+    let acc=0,idx=S.length-1;for(let i=0;i<S.length;i++){if(t<acc+S[i].d){idx=i;break;}acc+=S[i].d;}
+    if(idx!==cur){if(cur>=0)S[cur].el.classList.remove('on');cur=idx;S[idx].el.classList.add('on');
+      const f=document.getElementById('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
+    const s=S[idx];const local=t-acc;if(s.shots){const k=Math.min(s.shots.length-1,Math.floor(local/(s.d/s.shots.length)));s.el.querySelectorAll(".shot").forEach(e=>e.style.opacity=+e.dataset.k===k?1:0);s.el.querySelectorAll(".steps b").forEach((e,i)=>e.classList.toggle("now",i<=k));const tm=s.el.querySelector(".timer");if(tm)tm.textContent=(local*0.6).toFixed(1)+" s";}const words=[...s.el.querySelectorAll('.cap span')];
+    const n=Math.floor(words.length*Math.min(1,(local-.4)/(s.d*.62)));words.forEach((w,k)=>{if(k<n)w.classList.add('lit')});
+    if(t<total+0.6)requestAnimationFrame(tick);else window.__done=true;
+  }
+  requestAnimationFrame(tick);
+}
+window.start=run;
+</script></body></html>
